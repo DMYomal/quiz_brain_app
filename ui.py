@@ -11,8 +11,8 @@ class QuizInterface:
         self.window.title()
 
         self.window.config(padx=20, pady=20, bg=THEME_COLOR)
-        self.score_lable = tkinter.Label(text="Score: 0", fg='white', bg=THEME_COLOR)
-        self.score_lable.grid(row=0, column=1)
+        self.score_labal = tkinter.Label(text="Score: 0", fg='white', bg=THEME_COLOR)
+        self.score_labal.grid(row=0, column=1)
 
         self.canvas = tkinter.Canvas(width=300, height=250)
         self.question_text = self.canvas.create_text(
@@ -25,11 +25,11 @@ class QuizInterface:
         self.canvas.grid(row=1, column=0, columnspan=2, pady=50)
 
         true_logo = tkinter.PhotoImage('./images/true.png')
-        self.true_button = tkinter.Button(image=true_logo, highlightthickness=0,command=self.true_press)
+        self.true_button = tkinter.Button(text = "CORRECT", highlightthickness=0,command=self.true_press)
         self.true_button.grid(row=2, column=0)
 
         false_logo = tkinter.PhotoImage('./images/false.png')
-        self.false_button = tkinter.Button(image=false_logo,highlightthickness=0,command=self.false_press)
+        self.false_button = tkinter.Button(text = "WRONG",highlightthickness=0,command=self.false_press)
         self.false_button.grid(row=2, column=1)
 
         self.get_next_question()
@@ -37,12 +37,30 @@ class QuizInterface:
         self.window.mainloop()
 
     def get_next_question(self):
-        q_text = self.quiz.next_question()
-        self.canvas.itemconfig(self.question_text,text = q_text)
+        self.canvas.config(bg="white")
+        if self.quiz.still_has_questions():
+            self.score_labal.config(text =f"Score: {self.quiz.score}")
+            q_text = self.quiz.next_question()
+            self.canvas.itemconfig(self.question_text,text = q_text)
+        else:
+            self.canvas.itemconfig(self.question_text,text = "You have reach the end of the quiz")
+            self.true_button.config(state = "disabled")
+            self.false_button.config(state = "disabled")
 
     def true_press(self):
-        self.quiz.check_answer("True")
+        is_right = self.quiz.check_answer("True")
+        self.give_feedback(is_right)
     def false_press(self):
-        self.quiz.check_answer("False")
+        is_right = self.quiz.check_answer("False")
+        self.give_feedback(is_right)
+
+    def give_feedback(self,is_right):
+        if is_right:
+            self.canvas.config(bg="green")
+        else:
+            self.canvas.config(bg="red")
+
+        self.window.after(1000,self.get_next_question)
+
 
 
